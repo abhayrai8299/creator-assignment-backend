@@ -1,18 +1,22 @@
-# Step 1: Use Node.js base image
-FROM node:14-alpine
+# 1) Base image
+FROM node:18-alpine
 
-# Step 2: Set working directory in container
+# 2) Create & switch to app directory
 WORKDIR /app
 
-# Step 3: Copy package files and install dependencies
-COPY package*.json ./
-RUN npm install
+# 3) Copy package manifests and install only production deps
+#    (using npm ci if you have a package-lock.json for reproducible installs)
+COPY package.json package-lock.json ./
+RUN npm ci --only=production
 
-# Step 4: Copy the rest of the application code
+# 4) Copy the rest of your application code
 COPY . .
 
-# Step 5: Expose port
+# 5) (Optional) Set a default PORT—Railway overrides this automatically
+ENV PORT=3000
+
+# 6) Expose the port your app listens on
 EXPOSE 3000
 
-# Step 6: Run the application
+# 7) Start the application
 CMD ["npm", "start"]
